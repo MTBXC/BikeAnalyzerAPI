@@ -26,6 +26,8 @@ namespace BikeAnalyzerAPI.Entities
 
         public double? Weigth { get; set; }
 
+        public double? GeneralBikeRate { get; set; }
+
 
 
 

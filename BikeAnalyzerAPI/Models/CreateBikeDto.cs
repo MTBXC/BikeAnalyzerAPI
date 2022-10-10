@@ -14,26 +14,28 @@ namespace BikeAnalyzerAPI.Models
         [Required]
         public int? YearOfProduction { get; set; }
         [Required]
-        [Range(60, 75)]
+        [Range(65, 70)]
         public double? HeadTubeAngle { get; set; }
         [Required]
-        [Range(60, 75)]
+        [Range(70, 80)]
         public double? SeatTubeEffectiveAngle { get; set; }
         [Required]
-        [Range(50, 200)]
+        [Range(100, 120)]
         public int? TravelFrontWheel { get; set; }
         [Required]
-        [Range(50, 200)]
+        [Range(100, 120)]
         public int? TravelBackWheel { get; set; }
         [Required]
-        [Range(15, 35)]
+        [Range(20, 30)]
         public double? InnerRimWidth { get; set; }
         [Required]
-        [Range(1.9, 2.6)]
+        [Range(2, 2.4)]
         public double? TireWidth { get; set; }
         [Required]
-        [Range(7, 20)]
+        [Range(9, 14)]
         public double? Weigth { get; set; }
+
+        public double? GeneralBikeRate { get; set; }
 
     }
 }

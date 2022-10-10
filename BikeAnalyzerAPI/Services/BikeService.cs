@@ -8,7 +8,7 @@ namespace BikeAnalyzerAPI.Services
 {
     public interface IBikeService
     {
-        int Create(CreateBikeDto dto);
+        double? Create(CreateBikeDto dto);
         IEnumerable<BikeDto> GetAll();
         void Delete(int id);
     }
@@ -50,13 +50,31 @@ namespace BikeAnalyzerAPI.Services
             return bikesDtos;
         }
 
-        public int Create(CreateBikeDto dto)
+        public double? Create(CreateBikeDto dto)
         {
             var bike = _mapper.Map<Bike>(dto);
+            double headTubeAngleparametrA = -20;
+            double headTubeAngleparametrB = 1400;
+            double seatTubeAngleparametrA = 10;
+            double seatTubeAngleparametrB = -700;
+            double travelFrontWheelparametrA = 5;
+            double travelFrontWheelparametrB = -500;
+            double travelBackWheelparametrA = 5;
+            double travelBackWheelparametrB = -500;
+            double innerRimWidthparametrA = 10;
+            double innerRimWidthparametrB = -200;
+            double tireWidthparametrA = 250;
+            double tireWidthparametrB = -500;
+            double weigthparametrA = -20;
+            double weigthparametrB = 280;
+
+            double rateHeadTubeAngle = (double)(headTubeAngleparametrA * bike.HeadTubeAngle + headTubeAngleparametrB);
+            bike.GeneralBikeRate = rateHeadTubeAngle;   
+
             _dbContext.Bikes.Add(bike);
             _dbContext.SaveChanges();
 
-            return bike.Id;
+            return bike.GeneralBikeRate;
         }
     }
 }
