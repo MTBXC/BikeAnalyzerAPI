@@ -39,7 +39,7 @@ namespace BikeAnalyzerAPI.Controllers
           
             var id = _bikeService.Create(dto);
 
-            return Created($"api/bike/{id}", null);
+            return Created($"api/bike/{id}", id);
         }
         
     }
