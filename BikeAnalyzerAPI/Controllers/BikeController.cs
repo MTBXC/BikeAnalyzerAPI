@@ -32,6 +32,16 @@ namespace BikeAnalyzerAPI.Controllers
             
             return Ok(bikesDtos);
         }
+        [HttpGet("{id}")]
+        public ActionResult<BikeDto> Get([FromRoute] int id)
+        {
+            var bike = _bikeService.GetById(id);
+            if (bike is null)
+            {
+                return NotFound();
+            }
+            return Ok(bike);
+        }
         
         [HttpPost]
         public ActionResult CreateBike([FromBody] CreateBikeDto dto)

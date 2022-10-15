@@ -8,6 +8,7 @@ namespace BikeAnalyzerAPI.Services
 {
     public interface IBikeService
     {
+        BikeDto GetById(int id);
         double? Create(CreateBikeDto dto);
         IEnumerable<BikeDto> GetAll();
         void Delete(int id);
@@ -26,6 +27,16 @@ namespace BikeAnalyzerAPI.Services
             _logger = logger;
         }
 
+        public BikeDto GetById(int id)
+        {
+            var bike = _dbContext
+                .Bikes
+                .FirstOrDefault(r => r.Id == id);
+            if (bike is null) return null;
+
+            var result = _mapper.Map<BikeDto>(bike);
+            return result;
+        }
         public void Delete(int id)
         {
             _logger.LogError($"Bike with id: {id} DELETE action invoked");
