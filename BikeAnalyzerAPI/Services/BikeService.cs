@@ -3,6 +3,7 @@ using BikeAnalyzerAPI.Entities;
 using BikeAnalyzerAPI.Exceptions;
 using BikeAnalyzerAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace BikeAnalyzerAPI.Services
 {
@@ -10,7 +11,7 @@ namespace BikeAnalyzerAPI.Services
     {
         BikeDto GetById(int id);
         double? Create(CreateBikeDto dto);
-        IEnumerable<BikeDto> GetAll();
+        PagedResult<BikeDto> GetAll(BikeQuery query);
         void Delete(int id);
     }
 
@@ -52,13 +53,39 @@ namespace BikeAnalyzerAPI.Services
 
         }
 
-        public IEnumerable<BikeDto> GetAll()
+        public PagedResult<BikeDto> GetAll(BikeQuery query)
         {
-            var bikes = _dbContext.Bikes.ToList();
+            var baseQuery = _dbContext
+                .Bikes
+                .Where(r => query.SearchPhrase == null || (r.Model.ToLower().Contains(query.SearchPhrase) || r.Brand.ToLower().Contains(query.SearchPhrase)));
+
+            if(!string.IsNullOrEmpty(query.SortBy))
+            {
+                
+                var columnsSelector = new Dictionary<string, Expression<Func<Bike, object>>>
+                {
+                    { nameof(Bike.Brand), r=>r.Brand },
+                    { nameof(Bike.Model), r=>r.Model },
+                    { nameof(Bike.GeneralBikeRate), r=>r.GeneralBikeRate },
+                };
+                var selectedColumn = columnsSelector[query.SortBy];
+                baseQuery = query.SortDirection == SortDirection.ASC
+                    ? baseQuery.OrderBy(selectedColumn)
+                    : baseQuery.OrderByDescending(selectedColumn);
+            }
+
+            var bikes = baseQuery
+                .Skip(query.PageSize * (query.PageNumber-1))
+                .Take(query.PageSize)
+                .ToList();
+
+            var totalItemsCount = baseQuery.Count();
 
             var bikesDtos = _mapper.Map<List<BikeDto>>(bikes);
 
-            return bikesDtos;
+            var result = new PagedResult<BikeDto>(bikesDtos, totalItemsCount, query.PageSize, query.PageNumber);
+
+            return result;
         }
 
         public double? Create(CreateBikeDto dto)
@@ -86,6 +113,7 @@ namespace BikeAnalyzerAPI.Services
             _dbContext.SaveChanges();
 
             return bike.GeneralBikeRate;
+            return bike.Id;
         }
     }
 }

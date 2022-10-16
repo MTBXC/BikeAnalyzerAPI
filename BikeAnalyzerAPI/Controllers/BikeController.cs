@@ -26,9 +26,9 @@ namespace BikeAnalyzerAPI.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<BikeDto>> GetAll()
+        public ActionResult<IEnumerable<BikeDto>> GetAll([FromQuery]BikeQuery query)
         {
-            var bikesDtos = _bikeService.GetAll();
+            var bikesDtos = _bikeService.GetAll(query);
             
             return Ok(bikesDtos);
         }
@@ -46,10 +46,9 @@ namespace BikeAnalyzerAPI.Controllers
         [HttpPost]
         public ActionResult CreateBike([FromBody] CreateBikeDto dto)
         {
-          
             var id = _bikeService.Create(dto);
 
-            return Created($"api/bike/{id}", id);
+            return Created($"api/bike/{id}", $"GeneralBikeRate: {id}, Id of bike: {id}");
         }
         
     }
