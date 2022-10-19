@@ -107,7 +107,8 @@ namespace BikeAnalyzerAPI.Services
             double weigthparametrB = 280;
 
             double rateHeadTubeAngle = (double)(headTubeAngleparametrA * bike.HeadTubeAngle + headTubeAngleparametrB);
-            bike.GeneralBikeRate = rateHeadTubeAngle;   
+            double rateSeatTubeAngle = (double)(seatTubeAngleparametrA * bike.SeatTubeEffectiveAngle + seatTubeAngleparametrB);
+            bike.GeneralBikeRate = rateHeadTubeAngle + rateSeatTubeAngle;   
 
             _dbContext.Bikes.Add(bike);
             _dbContext.SaveChanges();
