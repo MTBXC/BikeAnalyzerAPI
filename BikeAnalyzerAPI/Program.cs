@@ -3,6 +3,7 @@ using BikeAnalyzerAPI.Entities;
 using BikeAnalyzerAPI.Middleware;
 using BikeAnalyzerAPI.Models;
 using BikeAnalyzerAPI.Models.Validators;
+using BikeAnalyzerAPI.Repository;
 using BikeAnalyzerAPI.Services;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -48,6 +49,7 @@ builder.Services.AddScoped<ErrorHandlingMiddleware>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
 builder.Services.AddScoped<IValidator<BikeQuery>, BikeQueryValidator>();
+builder.Services.AddScoped<IBikeRepository, BikeRepository>();
 
 
 var app = builder.Build();
