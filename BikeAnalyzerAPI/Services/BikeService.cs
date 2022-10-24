@@ -11,7 +11,7 @@ namespace BikeAnalyzerAPI.Services
     public interface IBikeService
     {
         BikeDto GetById(int id);
-        double? Create(CreateBikeDto dto);
+        Bike Create(CreateBikeDto dto);
         PagedResult<BikeDto> GetAll(BikeQuery query);
         void Delete(int id);
     }
@@ -43,9 +43,7 @@ namespace BikeAnalyzerAPI.Services
         {
             _logger.LogError($"Bike with id: {id} DELETE action invoked");
 
-            var bike = _dbContext
-                .Bikes
-                .FirstOrDefault(b => b.Id == id);
+            var bike = _bikerepository.Delete(id);
             if (bike is null) 
                 throw new NotFoundException("Bike not found");
 
@@ -89,7 +87,7 @@ namespace BikeAnalyzerAPI.Services
             return result;
         }
 
-        public double? Create(CreateBikeDto dto)
+        public Bike Create(CreateBikeDto dto)
         {
             var bike = _mapper.Map<Bike>(dto);
             double headTubeAngleparametrA = -20;
@@ -115,13 +113,12 @@ namespace BikeAnalyzerAPI.Services
             double rateTireWidth = (double)(tireWidthparametrA * bike.TireWidth + tireWidthparametrB);
             double rateWeigth = (double)(weigthparametrA * bike.Weigth + weigthparametrB);
 
-            bike.GeneralBikeRate = rateHeadTubeAngle + rateSeatTubeAngle + rateTravelFrontWheel + rateTravelBackWheel+ rateInnerRimWidth + rateTireWidth + rateWeigth;   
+            bike.GeneralBikeRate = rateHeadTubeAngle + rateSeatTubeAngle + rateTravelFrontWheel + rateTravelBackWheel+ rateInnerRimWidth + rateTireWidth + rateWeigth;
+            _bikerepository.Create(bike);
 
-            _dbContext.Bikes.Add(bike);
-            _dbContext.SaveChanges();
-
-            return bike.GeneralBikeRate;
-            return bike.Id;
+            //_dbContext.Bikes.Add(bike);
+            //_dbContext.SaveChanges();
+            return bike;
         }
     }
 }

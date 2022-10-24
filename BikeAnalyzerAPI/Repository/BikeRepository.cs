@@ -8,7 +8,7 @@ namespace BikeAnalyzerAPI.Repository
 
         public BikeRepository(BikeDbContext context)
         {
-            context = _dbContext;
+            _dbContext = context;
         }
         public Bike GetById(int id)
         {
@@ -16,6 +16,18 @@ namespace BikeAnalyzerAPI.Repository
                 .Bikes
                 .FirstOrDefault(r => r.Id == id);
             return bike;
+        }
+        public Bike Delete(int id)
+        {
+            var bike = _dbContext
+                .Bikes
+                .FirstOrDefault(b => b.Id == id);
+            return bike;
+        }
+        public void Create(Bike bike)
+        {
+            _dbContext.Bikes.Add(bike);
+            _dbContext.SaveChanges();
         }
     }
 
