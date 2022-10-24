@@ -2,6 +2,7 @@
 using BikeAnalyzerAPI.Entities;
 using BikeAnalyzerAPI.Exceptions;
 using BikeAnalyzerAPI.Models;
+using BikeAnalyzerAPI.Repository;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -10,7 +11,7 @@ namespace BikeAnalyzerAPI.Services
     public interface IBikeService
     {
         BikeDto GetById(int id);
-        double? Create(CreateBikeDto dto);
+        Bike Create(CreateBikeDto dto);
         PagedResult<BikeDto> GetAll(BikeQuery query);
         void Delete(int id);
     }
@@ -20,19 +21,19 @@ namespace BikeAnalyzerAPI.Services
         private readonly BikeDbContext _dbContext;
         private readonly IMapper _mapper;
         private readonly ILogger<BikeService> _logger;
+        private readonly IBikeRepository _bikerepository;
 
-        public BikeService(BikeDbContext dbContext, IMapper mapper, ILogger<BikeService> logger)
+        public BikeService(BikeDbContext dbContext, IMapper mapper, ILogger<BikeService> logger, IBikeRepository bikerepository)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _logger = logger;
+            _bikerepository = bikerepository;
         }
 
         public BikeDto GetById(int id)
         {
-            var bike = _dbContext
-                .Bikes
-                .FirstOrDefault(r => r.Id == id);
+            var bike = _bikerepository.GetById(id);
             if (bike is null) return null;
 
             var result = _mapper.Map<BikeDto>(bike);
@@ -42,9 +43,7 @@ namespace BikeAnalyzerAPI.Services
         {
             _logger.LogError($"Bike with id: {id} DELETE action invoked");
 
-            var bike = _dbContext
-                .Bikes
-                .FirstOrDefault(b => b.Id == id);
+            var bike = _bikerepository.Delete(id);
             if (bike is null) 
                 throw new NotFoundException("Bike not found");
 
@@ -88,7 +87,7 @@ namespace BikeAnalyzerAPI.Services
             return result;
         }
 
-        public double? Create(CreateBikeDto dto)
+        public Bike Create(CreateBikeDto dto)
         {
             var bike = _mapper.Map<Bike>(dto);
             double headTubeAngleparametrA = -20;
@@ -108,13 +107,18 @@ namespace BikeAnalyzerAPI.Services
 
             double rateHeadTubeAngle = (double)(headTubeAngleparametrA * bike.HeadTubeAngle + headTubeAngleparametrB);
             double rateSeatTubeAngle = (double)(seatTubeAngleparametrA * bike.SeatTubeEffectiveAngle + seatTubeAngleparametrB);
-            bike.GeneralBikeRate = rateHeadTubeAngle + rateSeatTubeAngle;   
+            double rateTravelFrontWheel = (double)(travelFrontWheelparametrA * bike.TravelFrontWheel + travelFrontWheelparametrB);
+            double rateTravelBackWheel = (double)(travelBackWheelparametrA * bike.TravelBackWheel + travelBackWheelparametrB);
+            double rateInnerRimWidth = (double)(innerRimWidthparametrA * bike.InnerRimWidth + innerRimWidthparametrB); 
+            double rateTireWidth = (double)(tireWidthparametrA * bike.TireWidth + tireWidthparametrB);
+            double rateWeigth = (double)(weigthparametrA * bike.Weigth + weigthparametrB);
 
-            _dbContext.Bikes.Add(bike);
-            _dbContext.SaveChanges();
+            bike.GeneralBikeRate = rateHeadTubeAngle + rateSeatTubeAngle + rateTravelFrontWheel + rateTravelBackWheel+ rateInnerRimWidth + rateTireWidth + rateWeigth;
+            _bikerepository.Create(bike);
 
-            return bike.GeneralBikeRate;
-            return bike.Id;
+            //_dbContext.Bikes.Add(bike);
+            //_dbContext.SaveChanges();
+            return bike;
         }
     }
 }
